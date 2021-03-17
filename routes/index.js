@@ -1,13 +1,8 @@
-const router = require("express").Router();
+const app = require('express')();
+const authRouter = require('./auth');
+const movieRouter = require('./movie');
 
-router.get("/movies", (req, res) => {
-  process.mongo
-    .db("imdb")
-    .collection("movies")
-    .find()
-    .toArray((err, docs) => {
-      res.json(docs);
-    });
-});
+app.use('/auth/', authRouter);
+app.use('/movie/', movieRouter);
 
-module.exports = router;
+module.exports = app;
