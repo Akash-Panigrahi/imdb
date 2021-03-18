@@ -10,51 +10,51 @@ const errorHandler = require('./helpers/errorHandler');
 const MONGODB_URL = process.env.MONGODB_URL;
 const PORT = process.env.PORT || 3000;
 
-const client = new MongoClient(MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-client.connect((err) => {
-    if (err) {
+async function server() {
+    try {
+        const client = await MongoClient.connect(MONGODB_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Connected to %s', MONGODB_URL);
+            console.log('App is running on %s ... \n', PORT);
+            console.log('Press CTRL + C to stop the process. \n');
+        }
+
+        process.mongo = client;
+    } catch (err) {
         console.error('App starting error:', err.message);
         process.exit(1);
     }
 
-    if (process.env.NODE_ENV === 'development') {
-        console.log('Connected to %s', MONGODB_URL);
-        console.log('App is running on %s ... \n', PORT);
-        console.log('Press CTRL + C to stop the process. \n');
-    }
+    const app = express();
 
-    process.mongo = client;
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
+    app.use(cors());
 
-    //   client.close();
-});
+    app.use('/', indexRouter);
 
-const app = express();
+    app.use(errorHandler);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(cors());
+    // app.all("*", function (req, res) {
+    //   return apiResponse.notFoundResponse(res, "Page not found");
+    // });
 
-app.use('/', indexRouter);
+    // app.use((err, req, res) => {
+    //   if (err.name == "UnauthorizedError") {
+    //     return apiResponse.unauthorizedResponse(res, err.message);
+    //   }
+    // });
 
-app.use(errorHandler);
-
-// app.all("*", function (req, res) {
-//   return apiResponse.notFoundResponse(res, "Page not found");
-// });
-
-// app.use((err, req, res) => {
-//   if (err.name == "UnauthorizedError") {
-//     return apiResponse.unauthorizedResponse(res, err.message);
-//   }
-// });
-
-app.listen(PORT);
+    app.listen(PORT);
+}
 
 process.on('SIGINT', function () {
     // this is only called on ctrl+c, not restart
     process.kill(process.pid, 'SIGINT');
 });
+
+server();

@@ -7,7 +7,7 @@ router.get('/', MovieController.movieList);
 
 router.use(authorize(Role.Admin));
 router.post('/', MovieController.movieCreate);
-router.put('/:id', MovieController.movieUpdate);
+router.post('/:id', MovieController.movieUpdate);
 router.delete('/:id', MovieController.movieDelete);
 
 module.exports = router;
