@@ -7,7 +7,6 @@ exports.movieList = [
     query('genre').optional().isString(),
     query('search').optional().isString().trim(),
     (req, res) => {
-
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -60,3 +59,6 @@ exports.movieDelete = [
             });
     },
 ];
+
+exports.movieCreate = [(req, res) => {},];
+exports.movieUpdate = [(req, res) => {},];
