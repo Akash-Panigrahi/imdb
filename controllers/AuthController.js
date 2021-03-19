@@ -2,17 +2,16 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
 exports.login = [
-    body('email')
+    body('email', 'Email must be specified')
         .isLength({ min: 1 })
         .trim()
-        .withMessage('Email must be specified')
+        .withMessage()
         .isEmail()
         .withMessage('Email must be a valid email address')
         .normalizeEmail(),
-    body('password')
+    body('password', 'Password must be specified.')
         .isLength({ min: 1 })
         .trim()
-        .withMessage('Password must be specified.')
         .escape(),
     (req, res) => {
         try {

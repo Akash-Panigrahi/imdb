@@ -11,6 +11,7 @@ exports.movieList = [
     query('genres').optional().isString(),
     query('search').optional().isString().trim(),
     query('start').optional().isString().toInt(),
+    query('length').optional().isString().toInt(),
     (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -23,6 +24,7 @@ exports.movieList = [
             genres,
             search,
             start = 0,
+            length = 20
         } = req.query;
 
         const matchParams = {};
@@ -51,7 +53,7 @@ exports.movieList = [
         if (start) {
             moviesFacet.push({ $skip: start });
         }
-        moviesFacet.push({ $limit: 20 });
+        moviesFacet.push({ $limit: length });
 
         pipeline.push({
             $facet: {
