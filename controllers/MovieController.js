@@ -3,7 +3,6 @@ const {
     body,
     query,
     validationResult,
-    sanitizeBody,
 } = require('express-validator');
 
 exports.movieList = [
@@ -28,7 +27,7 @@ exports.movieList = [
 
         const matchParams = {};
         if (genres) {
-            matchParams.genre = { $all: genres.split(',') };
+            matchParams.genres = { $all: genres.split(',') };
         }
         if (search) {
             const searchFilter = { $regex: search, $options: 'i' };
@@ -111,7 +110,7 @@ exports.movieCreate = [
         .isLength({ min: 1 })
         .trim()
         .escape(),
-    body('genre', 'Genres must be specified.').isArray({ min: 1 }),
+    body('genres', 'Genres must be specified.').isArray({ min: 1 }),
     body('popularity', 'Popularity must be specified.').isInt({
         min: 1,
         max: 99,
@@ -122,7 +121,7 @@ exports.movieCreate = [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name, director, genre, popularity } = req.body;
+        const { name, director, genres, popularity } = req.body;
 
         // check if movie is already present
         process.mongo
@@ -141,7 +140,7 @@ exports.movieCreate = [
                 const doc = {
                     name,
                     director,
-                    genre,
+                    genres,
                     '99popularity': popularity,
                     imdb_score: popularity / 10,
                 };
@@ -167,7 +166,7 @@ exports.movieCreate = [
 exports.movieUpdate = [
     body('name').optional().isLength({ min: 1 }).trim().escape(),
     body('director').optional().isLength({ min: 1 }).trim().escape(),
-    body('genre').optional().isArray({ min: 1 }),
+    body('genres').optional().isArray({ min: 1 }),
     body('popularity').optional().isInt({ min: 1, max: 99 }),
     (req, res) => {
         const errors = validationResult(req);
@@ -175,12 +174,12 @@ exports.movieUpdate = [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name, director, genre, popularity } = req.body;
+        const { name, director, genres, popularity } = req.body;
         const movieId = req.params.id;
         const doc = {};
         if (name) doc.name = name;
         if (director) doc.director = director;
-        if (genre) doc.genre = genre;
+        if (genres) doc.genres = genres;
         if (popularity) {
             doc['99popularity'] = popularity;
             doc.imdb_score = popularity / 10;
