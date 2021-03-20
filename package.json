@@ -1,10 +1,11 @@
 {
-  "name": "imdb",
+  "name": "imdb-api",
   "version": "1.0.0",
-  "description": "Repository for my imdb site",
+  "description": "Repository for my imdb api",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_ENV=development nodemon app"
+    "dev": "NODE_ENV=development nodemon app",
+    "start": "node app"
   },
   "repository": {
     "type": "git",
