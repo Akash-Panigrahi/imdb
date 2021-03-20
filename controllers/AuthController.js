@@ -13,7 +13,7 @@ exports.login = [
         .isLength({ min: 1 })
         .trim()
         .escape(),
-    (req, res) => {
+    async (req, res) => {
         try {
             const errors = validationResult(req);
 
@@ -21,34 +21,36 @@ exports.login = [
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            process.mongo
+            const user = await process.mongo
                 .db('imdb')
                 .collection('users')
-                .findOne({ email: req.body.email }, (err, user) => {
-                    if (err) {
-                        return res.status(400).json({ error: err.message });
-                    }
+                .findOne({ email: req.body.email });
 
-                    let userData = {
-                        email: user.email,
-                        role: user.role,
-                    };
-                    const jwtPayload = userData;
-                    const jwtData = {
-                        expiresIn: process.env.JWT_TIMEOUT_DURATION,
-                    };
-                    const secret = process.env.JWT_SECRET;
-                    userData.token = jwt.sign(jwtPayload, secret, jwtData, {
-                        algorithms: ['HS256'],
-                    });
-
-                    return res.json({
-                        message: 'Login Success.',
-                        data: userData,
-                    });
+            if (!user) {
+                return res.status(401).json({
+                    message: 'Invalid credentials.',
                 });
+            }
+
+            let userData = {
+                email: user.email,
+                role: user.role,
+            };
+            const jwtPayload = userData;
+            const jwtData = {
+                expiresIn: process.env.JWT_TIMEOUT_DURATION,
+            };
+            const secret = process.env.JWT_SECRET;
+            userData.token = jwt.sign(jwtPayload, secret, jwtData, {
+                algorithms: ['HS256'],
+            });
+
+            return res.json({
+                message: 'Login Success.',
+                data: userData,
+            });
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            return res.status(500).send({ message: err.message });
         }
     },
 ];
